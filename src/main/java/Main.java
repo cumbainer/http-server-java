@@ -25,15 +25,22 @@ public class Main {
             String request = String.valueOf(output).trim();
             System.out.println(request);
 
+            OutputStream outputStream = clientSocket.getOutputStream();
 
             String url = request.split("\r\n")[0].split(" ")[1].substring(1);
 
             int responseStatus = getStatus(url);
+            if (!isSuccessStatus(responseStatus)) {
+                outputStream.write(buildOutput(responseStatus, null, ""));
+                outputStream.flush();
+                return;
+
+            }
             String responseBody = getEchoResponseBody(url);
             List<String> headers = getResponseBodyHeaders(responseBody);
 
 
-            OutputStream outputStream = clientSocket.getOutputStream();
+
             outputStream.write(buildOutput(responseStatus, headers, responseBody));
 
             //todo what does this do ?
@@ -43,6 +50,11 @@ public class Main {
         } catch (IOException e) {
             System.out.println("IOException: " + e.getMessage());
         }
+    }
+
+    private static boolean isSuccessStatus(int status) {
+        List<Integer> successStatuses = List.of(200);
+        return successStatuses.contains(status);
     }
 
     private static int getStatus(String reqUrl) {
