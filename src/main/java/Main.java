@@ -8,7 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class Main {
-    public static void main(String[] args) {
+    static void main(String[] args) {
         try {
             ServerSocket serverSocket = new ServerSocket(4221);
             serverSocket.setReuseAddress(true);
@@ -17,25 +17,41 @@ public class Main {
 
             byte[] buffer = new byte[1024];
             InputStream inputStream = clientSocket.getInputStream();
-
             int readBytes = inputStream.read(buffer);
             buffer = trimTrailingZeroBytes(buffer);
-            System.out.println(Arrays.toString(buffer));
-            System.out.printf("Read Bytes %d%n", readBytes);
-            System.out.println("Is Keep Alive %s%n".formatted(clientSocket.getKeepAlive()));
 
             char[] output = StandardCharsets.US_ASCII.decode(ByteBuffer.wrap(buffer)).array();
             String request = String.valueOf(output).trim();
-            System.out.println(request);
+
+
+            int status = 200;
+            String reason = "OK";
+            String filePath = request.split("\r\n")[0].split(" ")[1];
+            if (!filePath.isBlank()) {
+                status = 404;
+                reason = "Not Found";
+            }
 
             OutputStream outputStream = clientSocket.getOutputStream();
-            outputStream.write("HTTP/1.1 200 OK\r\n\r\n".getBytes());
+            outputStream.write(buildOutput(status, reason));
+
+            //todo what does this do ?
             outputStream.flush();
 
 
         } catch (IOException e) {
             System.out.println("IOException: " + e.getMessage());
         }
+    }
+
+    private static byte[] buildOutput(int status, String reason) {
+        String b = "HTTP/1.1" +
+                " " +
+                status +
+                " " +
+                reason +
+                "\r\n\r\n";
+        return b.getBytes();
     }
 
     public static byte[] trimTrailingZeroBytes(byte[] bytes) {
