@@ -29,7 +29,7 @@ public class Main {
             System.out.println(request);
 
             OutputStream outputStream = clientSocket.getOutputStream();
-            outputStream.write("HTTP/1.1 200 WHATHEFUCK\r\n".getBytes());
+            outputStream.write("HTTP/1.1 200 WHATHEFUCK\r\n\r\n".getBytes());
             outputStream.flush();
 
 
