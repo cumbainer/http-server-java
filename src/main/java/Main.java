@@ -5,9 +5,10 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
+import java.util.*;
 
 public class Main {
+    private static final List<String> SUPPORTED_PATHS = List.of("", "echo");
     static void main(String[] args) {
         try {
             ServerSocket serverSocket = new ServerSocket(4221);
@@ -22,18 +23,18 @@ public class Main {
 
             char[] output = StandardCharsets.US_ASCII.decode(ByteBuffer.wrap(buffer)).array();
             String request = String.valueOf(output).trim();
+            System.out.println(request);
 
 
-            int status = 200;
-            String reason = "OK";
-            String filePath = request.split("\r\n")[0].split(" ")[1];
-            if (!filePath.isBlank() && !filePath.equals("/")) {
-                status = 404;
-                reason = "Not Found";
-            }
+            String url = request.split("\r\n")[0].split(" ")[1].substring(1);
+
+            int responseStatus = getStatus(url);
+            String responseBody = getEchoResponseBody(url);
+            List<String> headers = getResponseBodyHeaders(responseBody);
+
 
             OutputStream outputStream = clientSocket.getOutputStream();
-            outputStream.write(buildOutput(status, reason));
+            outputStream.write(buildOutput(responseStatus, headers, responseBody));
 
             //todo what does this do ?
             outputStream.flush();
@@ -44,13 +45,52 @@ public class Main {
         }
     }
 
-    private static byte[] buildOutput(int status, String reason) {
-        String b = "HTTP/1.1" +
-                " " +
-                status +
-                " " +
-                reason +
-                "\r\n\r\n";
+    private static int getStatus(String reqUrl) {
+        String baseAbsolutePath = reqUrl.split("/")[0].trim();
+        if (SUPPORTED_PATHS.contains(reqUrl) || SUPPORTED_PATHS.contains(baseAbsolutePath)) {
+            return 200;
+        }
+        return 404;
+    }
+
+    private static String getEchoResponseBody(String url) {
+        String[] parts = url.split("/");
+        return parts[1].trim();
+    }
+
+    private static List<String> getResponseBodyHeaders(String responseBody) {
+        String contentLengthH = "Content-Length: " + responseBody.length();
+        String contentTypeH = "Content-Type: text/plain";
+        return List.of(contentLengthH, contentTypeH);
+    }
+
+    private static String getReason(int status){
+        Map<Integer, String> status2Reason = new HashMap<>();
+        status2Reason.put(200, "OK");
+        status2Reason.put(404, "Not Found");
+        status2Reason.put(400, "Bad Request");
+
+        return status2Reason.get(status);
+    }
+
+    private static byte[] buildOutput(int status, List<String> headers, String responseBody) {
+        if (headers == null) {
+            headers = Collections.EMPTY_LIST;
+        }
+        StringBuilder headerB = new StringBuilder();
+        for (String h : headers) {
+            headerB.append(h).append("\r\n");
+        }
+        String reason = getReason(status);
+        String request = "HTTP/1.1" + " " + status + " " + reason;
+        String header = headerB.toString();
+
+
+        String b = request +
+                "\r\n" +
+                header +
+                "\r\n" +
+                responseBody + "\r\n";
         return b.getBytes();
     }
 
