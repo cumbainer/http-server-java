@@ -55,7 +55,7 @@ public class Main {
 
     private static int getStatus(String reqPart) {
         String url = ParserHelper.getUrlFromRequestPart(reqPart);
-        String baseAbsolutePath = reqPart.split("/")[0].trim();
+        String baseAbsolutePath = url.split("/")[0].trim();
         if (SUPPORTED_PATHS.contains(url) || SUPPORTED_PATHS.contains(baseAbsolutePath)) {
             return 200;
         }
