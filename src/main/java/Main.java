@@ -8,7 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class Main {
-    private static final List<String> SUPPORTED_PATHS = List.of("", "echo");
+    private static final List<String> SUPPORTED_PATHS = List.of("", "echo", "user-agent");
     static void main(String[] args) {
         try {
             ServerSocket serverSocket = new ServerSocket(4221);
@@ -27,19 +27,15 @@ public class Main {
 
             OutputStream outputStream = clientSocket.getOutputStream();
 
-            String url = request.split("\r\n")[0].split(" ")[1].substring(1);
-
-            int responseStatus = getStatus(url);
+            int responseStatus = getStatus(request);
             if (!isSuccessStatus(responseStatus)) {
                 outputStream.write(buildOutput(responseStatus, null, ""));
                 outputStream.flush();
                 return;
 
             }
-            String responseBody = getEchoResponseBody(url);
+            String responseBody = getResponseBody(request);
             List<String> headers = getResponseBodyHeaders(responseBody);
-
-
 
             outputStream.write(buildOutput(responseStatus, headers, responseBody));
 
@@ -57,15 +53,40 @@ public class Main {
         return successStatuses.contains(status);
     }
 
-    private static int getStatus(String reqUrl) {
-        String baseAbsolutePath = reqUrl.split("/")[0].trim();
-        if (SUPPORTED_PATHS.contains(reqUrl) || SUPPORTED_PATHS.contains(baseAbsolutePath)) {
+    private static int getStatus(String reqPart) {
+        String url = ParserHelper.getUrlFromRequestPart(reqPart);
+        String baseAbsolutePath = reqPart.split("/")[0].trim();
+        if (SUPPORTED_PATHS.contains(url) || SUPPORTED_PATHS.contains(baseAbsolutePath)) {
             return 200;
         }
         return 404;
     }
 
-    private static String getEchoResponseBody(String url) {
+
+    private static String getResponseBody(String httpRequestPart) {
+        String url = ParserHelper.getUrlFromRequestPart(httpRequestPart);
+        return switch (url) {
+            case "echo" -> getEchoResponseBody(httpRequestPart);
+            case "user-agent" -> getUserAgentResponse(httpRequestPart);
+            default -> "";
+        };
+
+    }
+
+    private static String getUserAgentResponse(String reqPart) {
+        String targetHeader = "User-Agent";
+        String[] headers = reqPart.split("\n");
+        for (int i=0; i < headers.length; i++) {
+            String header = headers[i];
+            if (header.contains(targetHeader)) {
+                return header.split(":")[1].trim();
+            }
+        }
+        return "";
+    }
+
+    private static String getEchoResponseBody(String reqPart) {
+        String url = ParserHelper.getUrlFromRequestPart(reqPart);
         if (url.isBlank()) {
             return "";
         }
