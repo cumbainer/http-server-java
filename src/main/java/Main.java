@@ -1,8 +1,7 @@
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -14,7 +13,32 @@ public class Main {
             ServerSocket serverSocket = new ServerSocket(4221);
             serverSocket.setReuseAddress(true);
 
+            while (true) {
+                handleRequest(serverSocket);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static boolean isSuccessStatus(int status) {
+        List<Integer> successStatuses = List.of(200);
+        return successStatuses.contains(status);
+    }
+
+    private static int getStatus(String reqPart) {
+        String url = ParserHelper.getUrlFromRequestPart(reqPart);
+        String baseAbsolutePath = url.split("/")[0].trim();
+        if (SUPPORTED_PATHS.contains(url) || SUPPORTED_PATHS.contains(baseAbsolutePath)) {
+            return 200;
+        }
+        return 404;
+    }
+
+    private static void handleRequest(ServerSocket serverSocket) {
+        try {
             Socket clientSocket = serverSocket.accept();
+            clientSocket.setKeepAlive(true);
 
             byte[] buffer = new byte[1024];
             InputStream inputStream = clientSocket.getInputStream();
@@ -41,25 +65,9 @@ public class Main {
 
             //todo what does this do ?
             outputStream.flush();
-
-
         } catch (IOException e) {
             System.out.println("IOException: " + e.getMessage());
         }
-    }
-
-    private static boolean isSuccessStatus(int status) {
-        List<Integer> successStatuses = List.of(200);
-        return successStatuses.contains(status);
-    }
-
-    private static int getStatus(String reqPart) {
-        String url = ParserHelper.getUrlFromRequestPart(reqPart);
-        String baseAbsolutePath = url.split("/")[0].trim();
-        if (SUPPORTED_PATHS.contains(url) || SUPPORTED_PATHS.contains(baseAbsolutePath)) {
-            return 200;
-        }
-        return 404;
     }
 
 
@@ -96,6 +104,9 @@ public class Main {
     }
 
     private static List<String> getResponseBodyHeaders(String responseBody) {
+        if (responseBody.isBlank()) {
+            return Collections.emptyList();
+        }
         String contentLengthH = "Content-Length: " + responseBody.length();
         String contentTypeH = "Content-Type: text/plain";
         return List.of(contentLengthH, contentTypeH);
@@ -112,7 +123,7 @@ public class Main {
 
     private static byte[] buildOutput(int status, List<String> headers, String responseBody) {
         if (headers == null) {
-            headers = Collections.EMPTY_LIST;
+            headers = Collections.emptyList();
         }
         StringBuilder headerB = new StringBuilder();
         for (String h : headers) {
@@ -127,7 +138,7 @@ public class Main {
                 "\r\n" +
                 header +
                 "\r\n" +
-                responseBody + "\r\n";
+                responseBody + "\r\n".trim();
         return b.getBytes();
     }
 
