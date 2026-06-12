@@ -65,6 +65,8 @@ public class Main {
 
             //todo what does this do ?
             outputStream.flush();
+
+            clientSocket.close();
         } catch (IOException e) {
             System.out.println("IOException: " + e.getMessage());
         }
@@ -138,7 +140,7 @@ public class Main {
                 "\r\n" +
                 header +
                 "\r\n" +
-                responseBody + "\r\n".trim();
+                responseBody + "\r\n";
         return b.getBytes();
     }
 
