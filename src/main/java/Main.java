@@ -65,6 +65,7 @@ public class Main {
 
     private static String getResponseBody(String httpRequestPart) {
         String url = ParserHelper.getUrlFromRequestPart(httpRequestPart);
+        String baseUrlPart = url.split("/")[0].trim();
         return switch (url) {
             case "echo" -> getEchoResponseBody(httpRequestPart);
             case "user-agent" -> getUserAgentResponse(httpRequestPart);
