@@ -14,7 +14,7 @@ public class Main {
             serverSocket.setReuseAddress(true);
 
             while (true) {
-                handleRequest(serverSocket);
+                Thread.startVirtualThread(() -> handleRequest(serverSocket));
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
