@@ -1,22 +1,63 @@
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 public class Main {
-  public static void main(String[] args) {
-//     TODO: Uncomment the code below to pass the first stage
+    public static void main(String[] args) {
+        try {
+            ServerSocket serverSocket = new ServerSocket(4221);
+            serverSocket.setReuseAddress(true);
 
-     try {
-       ServerSocket serverSocket = new ServerSocket(4221);
+            Socket clientSocket = serverSocket.accept();
 
-       // Since the tester restarts your program quite often, setting SO_REUSEADDR
-       // ensures that we don't run into 'Address already in use' errors
-       serverSocket.setReuseAddress(true);
+            byte[] buffer = new byte[1024];
+            InputStream inputStream = clientSocket.getInputStream();
 
-       serverSocket.accept(); // Wait for connection from client.
-       System.out.println("accepted new connection");
-     } catch (IOException e) {
-       System.out.println("IOException: " + e.getMessage());
-     }
-  }
+            int readBytes = inputStream.read(buffer);
+            buffer = trimTrailingZeroBytes(buffer);
+            System.out.println(Arrays.toString(buffer));
+            System.out.printf("Read Bytes %d%n", readBytes);
+            System.out.println("Is Keep Alive %s%n".formatted(clientSocket.getKeepAlive()));
+
+            char[] output = StandardCharsets.US_ASCII.decode(ByteBuffer.wrap(buffer)).array();
+            String request = String.valueOf(output).trim();
+            System.out.println(request);
+            String userAgent = getUserAgent(request);
+            System.out.println(userAgent);
+
+
+            OutputStream outputStream = clientSocket.getOutputStream();
+            outputStream.write("HTTP/1.1 200 WHATHEFUCK\r\n".getBytes());
+            outputStream.flush();
+
+
+        } catch (IOException e) {
+            System.out.println("IOException: " + e.getMessage());
+        }
+    }
+
+    private static String getUserAgent(String req) {
+        return req.split("\n")[2].split(":")[1].trim();
+    }
+
+    public static byte[] trimTrailingZeroBytes(byte[] bytes) {
+        if (bytes == null) {
+            return null;
+        }
+
+        int end = bytes.length;
+
+        while (end > 0 && bytes[end - 1] == 0) {
+            end--;
+        }
+
+        return Arrays.copyOf(bytes, end);
+    }
+
+
 }
