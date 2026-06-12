@@ -38,6 +38,7 @@ public class Main {
     private static void handleRequest(ServerSocket serverSocket) {
         try {
             Socket clientSocket = serverSocket.accept();
+            System.out.println("Accepted new connection from " + clientSocket.getInetAddress().getHostName());
 
             byte[] buffer = new byte[1024];
             InputStream inputStream = clientSocket.getInputStream();
@@ -54,6 +55,7 @@ public class Main {
             if (!isSuccessStatus(responseStatus)) {
                 outputStream.write(buildOutput(responseStatus, null, ""));
                 outputStream.flush();
+                clientSocket.close();
                 return;
 
             }
