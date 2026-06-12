@@ -38,7 +38,6 @@ public class Main {
     private static void handleRequest(ServerSocket serverSocket) {
         try {
             Socket clientSocket = serverSocket.accept();
-            clientSocket.setKeepAlive(true);
 
             byte[] buffer = new byte[1024];
             InputStream inputStream = clientSocket.getInputStream();
