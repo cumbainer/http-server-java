@@ -27,9 +27,6 @@ public class Main {
             char[] output = StandardCharsets.US_ASCII.decode(ByteBuffer.wrap(buffer)).array();
             String request = String.valueOf(output).trim();
             System.out.println(request);
-            String userAgent = getUserAgent(request);
-            System.out.println(userAgent);
-
 
             OutputStream outputStream = clientSocket.getOutputStream();
             outputStream.write("HTTP/1.1 200 WHATHEFUCK\r\n".getBytes());
@@ -39,10 +36,6 @@ public class Main {
         } catch (IOException e) {
             System.out.println("IOException: " + e.getMessage());
         }
-    }
-
-    private static String getUserAgent(String req) {
-        return req.split("\n")[2].split(":")[1].trim();
     }
 
     public static byte[] trimTrailingZeroBytes(byte[] bytes) {
