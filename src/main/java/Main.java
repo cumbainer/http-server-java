@@ -27,7 +27,7 @@ public class Main {
             int status = 200;
             String reason = "OK";
             String filePath = request.split("\r\n")[0].split(" ")[1];
-            if (!filePath.isBlank()) {
+            if (!filePath.isBlank() && !filePath.equals("/")) {
                 status = 404;
                 reason = "Not Found";
             }
