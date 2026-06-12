@@ -1,20 +1,24 @@
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+
+/*
+    1. Easy to add new endpoints
+
+ */
 public class Main {
-    private static final List<String> SUPPORTED_PATHS = List.of("", "echo", "user-agent");
+    private static final List<String> SUPPORTED_PATHS = List.of("", "echo", "user-agent", "files");
     static void main(String[] args) {
         try {
             ServerSocket serverSocket = new ServerSocket(4221);
             serverSocket.setReuseAddress(true);
 
             while (true) {
-                Thread.startVirtualThread(() -> handleRequest(serverSocket));
+                Runnable runnable = () -> handleRequest(serverSocket);
+                runnable.run();
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -73,6 +77,18 @@ public class Main {
         }
     }
 
+    private static String buildFileResponse(String reqPart) {
+        String filename = reqPart.split(" ")[1].split("/")[2].trim();
+        StringBuilder fileContent = new StringBuilder();
+        try (Scanner scanner = new Scanner(new File(filename))) {
+            while (scanner.hasNext()) {
+                fileContent.append(scanner.nextLine());
+            }
+            return fileContent.toString();
+        } catch (FileNotFoundException ex) {
+            return "";
+        }
+    }
 
     private static String getResponseBody(String httpRequestPart) {
         String url = ParserHelper.getUrlFromRequestPart(httpRequestPart);
@@ -81,6 +97,7 @@ public class Main {
             case "" -> buildRootResponse(httpRequestPart);
             case "echo" -> getEchoResponseBody(httpRequestPart);
             case "user-agent" -> getUserAgentResponse(httpRequestPart);
+            case "files" -> buildFileResponse(httpRequestPart);
             default -> "";
         };
 
@@ -163,6 +180,5 @@ public class Main {
 
         return Arrays.copyOf(bytes, end);
     }
-
 
 }
