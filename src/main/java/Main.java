@@ -77,11 +77,16 @@ public class Main {
         String url = ParserHelper.getUrlFromRequestPart(httpRequestPart);
         String baseUrlPart = url.split("/")[0].trim();
         return switch (baseUrlPart) {
+            case "" -> buildRootResponse(httpRequestPart);
             case "echo" -> getEchoResponseBody(httpRequestPart);
             case "user-agent" -> getUserAgentResponse(httpRequestPart);
             default -> "";
         };
 
+    }
+
+    private static String buildRootResponse(String reqPart) {
+        return "HTTP/1.1 200 OK\r\n\r\n";
     }
 
     private static String getUserAgentResponse(String reqPart) {
