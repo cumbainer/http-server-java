@@ -54,6 +54,9 @@ public class Main {
     }
 
     private static String getEchoResponseBody(String url) {
+        if (url.isBlank()) {
+            return "";
+        }
         String[] parts = url.split("/");
         return parts[1].trim();
     }
