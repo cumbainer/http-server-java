@@ -1,6 +1,6 @@
 public enum HttpStatus {
     OK(200, "OK"),
-    NOT_FOUND(404, "Not found"),
+    NOT_FOUND(404, "Not Found"),
     INTERNAL_ERROR(500, "Internal Error");
 
     private final int code;
