@@ -3,4 +3,5 @@ public interface HttpEndpoint {
 
     String getUrl();
 
+    boolean matches(HttpRequest request);
 }

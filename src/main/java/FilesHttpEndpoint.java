@@ -32,6 +32,11 @@ public class FilesHttpEndpoint implements HttpEndpoint {
         return "/files/{filename}";
     }
 
+    @Override
+    public boolean matches(HttpRequest request) {
+        return request.getBaseUrl().contains("files");
+    }
+
     public FilesHttpEndpoint(HttpResponseBuilder responseBuilder) {
         this.responseBuilder = responseBuilder;
     }

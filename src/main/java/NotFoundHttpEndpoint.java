@@ -13,4 +13,9 @@ public class NotFoundHttpEndpoint implements HttpEndpoint {
     public String getUrl() {
         return "";
     }
+
+    @Override
+    public boolean matches(HttpRequest request) {
+        return false;
+    }
 }

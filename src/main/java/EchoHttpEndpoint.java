@@ -13,6 +13,11 @@ public class EchoHttpEndpoint implements HttpEndpoint {
         return "/echo/**";
     }
 
+    @Override
+    public boolean matches(HttpRequest request) {
+        return request.getBaseUrl().contains("echo");
+    }
+
     public EchoHttpEndpoint(HttpResponseBuilder responseBuilder) {
         this.responseBuilder = responseBuilder;
     }

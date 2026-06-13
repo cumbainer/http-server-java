@@ -7,6 +7,7 @@ public record HttpRequest(HttpMethod method, Map<String, String> headers, String
     }
 
     public String getBaseUrl() {
-        return this.url.split("/")[1];
+        String[] parts = this.url.split("/");
+        return parts.length >= 2 ? parts[1] : "/";
     }
 }

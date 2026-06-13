@@ -15,8 +15,8 @@ public class EndpointRegistry {
 
     public HttpEndpoint getEndpoint(HttpRequest request) {
         return endpoints.stream()
-                .filter(endpoint -> endpoint.getUrl().contains(request.getBaseUrl()))
-                .findAny()
+                .filter(endpoint -> endpoint.matches(request))
+                .findFirst()
                 .orElseGet(NotFoundHttpEndpoint::new);
     }
 }
