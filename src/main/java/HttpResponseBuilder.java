@@ -15,7 +15,6 @@ public class HttpResponseBuilder {
             headers.put("Content-Type", "text/plain");
         }
         headers.put("Content-Length", responseBody == null ? "0" : String.valueOf(responseBody.length()));
-//        headers.put("Connection", "close");
 
         headers.putAll(overrideHeaders);
 

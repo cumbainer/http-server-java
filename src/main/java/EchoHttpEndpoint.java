@@ -18,7 +18,7 @@ public class EchoHttpEndpoint implements HttpEndpoint {
         String echoPart = parts[2];
 
         if (shouldCompress(request)) {
-            echoPart = compress(echoPart);
+            echoPart = compressToGzipBytes(echoPart).toString();
             return responseBuilder.build200(echoPart, Map.of("Content-Encoding", "gzip"));
         }
 
@@ -46,19 +46,19 @@ public class EchoHttpEndpoint implements HttpEndpoint {
         this.responseBuilder = responseBuilder;
     }
 
-    public static String compress(String str) {
+    public static byte[] compressToGzipBytes(String str) {
         if (str == null || str.isEmpty()) {
-            return str;
+            return new byte[0];
         }
 
-        ByteArrayOutputStream obj = new ByteArrayOutputStream();
-        try (GZIPOutputStream gzip = new GZIPOutputStream(obj)) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        try (GZIPOutputStream gzip = new GZIPOutputStream(out)) {
             gzip.write(str.getBytes(StandardCharsets.UTF_8));
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        return Base64.getEncoder().encodeToString(obj.toByteArray());
+        return out.toByteArray();
     }
 }
