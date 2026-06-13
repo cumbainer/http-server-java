@@ -11,7 +11,7 @@ public class FilesHttpEndpoint implements HttpEndpoint {
         String[] parts = request.url().split("/");
         String filename;
         if (parts.length > 2) {
-            filename = parts[2];
+            filename = DirectoryContainer.getBaseDirectory() + "/" + parts[2];
         } else {
             return responseBuilder.build404();
         }

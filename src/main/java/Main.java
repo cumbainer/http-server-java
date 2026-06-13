@@ -1,6 +1,8 @@
 public static final int PORT = 4221;
 
-void main() {
+void main(String[] args) {
+    DirectoryContainer.setDir(getFileDir(args));
+
     try (ServerSocket serverSocket = new ServerSocket(PORT)) {
         serverSocket.setReuseAddress(true);
 
@@ -15,6 +17,14 @@ void main() {
     }
 }
 
+private String getFileDir(String[] args) {
+    for (int i = 0; i < args.length; i++) {
+        if (args[i].equals("--directory")) {
+            return args[i + 1];
+        }
+    }
+    return null;
+}
 private void handleHttpRequest(Socket clientSocket) {
     var registry = new EndpointRegistry();
     var httpReqBuilder = new HttpRequestBuilder();
