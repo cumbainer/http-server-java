@@ -8,7 +8,13 @@ void main(String[] args) {
 
         while (true) {
 
-                Thread thread = new Thread(() -> handleHttpRequest(serverSocket));
+                Thread thread = new Thread(() -> {
+                    try {
+                        handleHttpRequest(serverSocket);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
                 thread.start();
         }
     } catch (IOException e) {
@@ -24,7 +30,7 @@ private String getFileDir(String[] args) {
     }
     return null;
 }
-private void handleHttpRequest(ServerSocket serverSocket) {
+private void handleHttpRequest(ServerSocket serverSocket) throws IOException {
     Socket clientSocket = serverSocket.accept();
 
     var registry = new EndpointRegistry();
