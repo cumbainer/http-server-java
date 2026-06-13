@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -60,6 +61,16 @@ public class HttpResponseSender {
             outputStream.flush();
 
             return true;
+        } catch (SocketException ex) {
+            if (ex.getMessage().equals("Broken pipe")) {
+                try {
+                    clientSocket.close();
+                    return false;
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            return false;
         } catch (IOException e) {
             e.printStackTrace();
             return false;
