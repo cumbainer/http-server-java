@@ -16,7 +16,7 @@ public class HttpResponseSender {
             String body = response.responseBody() == null
                     ? ""
                     : response.responseBody();
-            body += "\r\n   ";
+            body += "\r\n";
 
             byte[] bodyBytes = body.getBytes(StandardCharsets.UTF_8);
 
