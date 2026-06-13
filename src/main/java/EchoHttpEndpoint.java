@@ -17,14 +17,19 @@ public class EchoHttpEndpoint implements HttpEndpoint {
         String[] parts = request.url().split("/");
         String echoPart = parts[2];
 
-        boolean hasCompression = request.headers().containsKey(COMPRESSION_HEADER);
-        boolean isValidCompression = SUPPORTED_COMPRESSIONS.contains(request.headers().getOrDefault(COMPRESSION_HEADER, ""));
-        if (hasCompression && isValidCompression) {
+        if (shouldCompress(request)) {
             echoPart = compress(echoPart);
             return responseBuilder.build200(echoPart, Map.of("Content-Encoding", "gzip"));
         }
 
         return responseBuilder.build200(echoPart);
+    }
+
+    private boolean shouldCompress(HttpRequest request) {
+        String compressions = request.headers().getOrDefault(COMPRESSION_HEADER, "");
+        boolean hasCompression = request.headers().containsKey(COMPRESSION_HEADER);
+        boolean isValidCompression = SUPPORTED_COMPRESSIONS.stream().anyMatch(compressions::contains);
+        return hasCompression && isValidCompression;
     }
 
     @Override
