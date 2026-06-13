@@ -7,12 +7,9 @@ void main(String[] args) {
         serverSocket.setReuseAddress(true);
 
         while (true) {
-            Socket clientSocket = serverSocket.accept();
 
-            if (!clientSocket.isClosed()) {
-                Thread thread = new Thread(() -> handleHttpRequest(clientSocket));
+                Thread thread = new Thread(() -> handleHttpRequest(serverSocket));
                 thread.start();
-            }
         }
     } catch (IOException e) {
         throw new RuntimeException(e);
@@ -27,7 +24,9 @@ private String getFileDir(String[] args) {
     }
     return null;
 }
-private void handleHttpRequest(Socket clientSocket) {
+private void handleHttpRequest(ServerSocket serverSocket) {
+    Socket clientSocket = serverSocket.accept();
+
     var registry = new EndpointRegistry();
     var httpReqBuilder = new HttpRequestBuilder();
     var httpResponseSender = new HttpResponseSender();
