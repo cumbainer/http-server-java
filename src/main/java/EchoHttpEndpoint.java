@@ -18,7 +18,7 @@ public class EchoHttpEndpoint implements HttpEndpoint {
         String echoPart = parts[2];
 
         boolean hasCompression = request.headers().containsKey(COMPRESSION_HEADER);
-        boolean isValidCompression = SUPPORTED_COMPRESSIONS.contains(request.headers().get(COMPRESSION_HEADER));
+        boolean isValidCompression = SUPPORTED_COMPRESSIONS.contains(request.headers().getOrDefault(COMPRESSION_HEADER, ""));
         if (hasCompression && isValidCompression) {
             echoPart = compress(echoPart);
             return responseBuilder.build200(echoPart, Map.of("Content-Encoding", "gzip"));
