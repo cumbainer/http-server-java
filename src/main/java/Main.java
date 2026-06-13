@@ -9,8 +9,10 @@ void main(String[] args) {
         while (true) {
             Socket clientSocket = serverSocket.accept();
 
-            Thread thread = new Thread(() -> handleHttpRequest(clientSocket));
-            thread.start();
+            if (!clientSocket.isClosed()) {
+                Thread thread = new Thread(() -> handleHttpRequest(clientSocket));
+                thread.start();
+            }
         }
     } catch (IOException e) {
         throw new RuntimeException(e);
