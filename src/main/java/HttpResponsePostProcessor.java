@@ -1,6 +1,8 @@
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.zip.GZIPOutputStream;
 
@@ -10,7 +12,9 @@ public class HttpResponsePostProcessor {
 
     public HttpResponse postProcess(HttpRequest request, HttpResponse response) {
         if (ParserHelper.shouldClose(request)) {
-            response.responseHeaders().add("Connection: close");
+            List<String> newHeaders = new ArrayList<>(response.responseHeaders());
+            newHeaders.add("Connection: close");
+            return new HttpResponse(newHeaders, response.responseBody(), response.responseStatus());
         }
         return response;
     }
