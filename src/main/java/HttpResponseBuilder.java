@@ -32,7 +32,7 @@ public class HttpResponseBuilder {
         }
 
         headers.put("Content-Length", String.valueOf(body.getBytes(bodyCharset).length));
-        headers.put("Connection", "keep-alive");
+//        headers.put("Connection", "keep-alive");
 
         headers.putAll(overrideHeaders);
 
