@@ -31,10 +31,6 @@ public class HttpResponseSender {
                 rawResponse.append(header).append("\r\n");
             }
 
-            rawResponse.append("Content-Length: ")
-                    .append(bodyBytes.length)
-                    .append("\r\n");
-
             rawResponse.append("\r\n");
 
             outputStream.write(rawResponse.toString().getBytes(StandardCharsets.UTF_8));
