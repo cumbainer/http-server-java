@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 public class HttpResponseSender {
 
@@ -16,7 +17,6 @@ public class HttpResponseSender {
             String body = response.responseBody() == null
                     ? ""
                     : response.responseBody();
-            body += "\r\n";
 
             byte[] bodyBytes = body.getBytes(StandardCharsets.UTF_8);
 
@@ -28,12 +28,27 @@ public class HttpResponseSender {
                     .append(response.responseStatus().getReason())
                     .append("\r\n");
 
-            for (String header : response.responseHeaders()) {
-                rawResponse.append(header).append("\r\n");
+            boolean hasContentLength = false;
+
+            List<String> headers = response.responseHeaders();
+
+            if (headers != null) {
+                for (String header : headers) {
+                    if (header.toLowerCase().startsWith("content-length:")) {
+                        hasContentLength = true;
+                    }
+
+                    rawResponse.append(header).append("\r\n");
+                }
+            }
+
+            if (!hasContentLength) {
+                rawResponse.append("Content-Length: ")
+                        .append(bodyBytes.length)
+                        .append("\r\n");
             }
 
             rawResponse.append("\r\n");
-
 
             outputStream.write(rawResponse.toString().getBytes(StandardCharsets.UTF_8));
             outputStream.write(bodyBytes);
@@ -41,6 +56,7 @@ public class HttpResponseSender {
 
             return true;
         } catch (IOException e) {
+            e.printStackTrace();
             return false;
         }
     }
