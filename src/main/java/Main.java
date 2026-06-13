@@ -29,6 +29,7 @@ private void handleHttpRequest(Socket clientSocket) {
     var registry = new EndpointRegistry();
     var httpReqBuilder = new HttpRequestBuilder();
     var httpResponseSender = new HttpResponseSender();
+    var postProcessor = new HttpResponsePostProcessor();
 
     try (clientSocket) {
         System.out.println("Accepted new connection from " + clientSocket.getInetAddress().getHostName());
@@ -38,10 +39,11 @@ private void handleHttpRequest(Socket clientSocket) {
 
         HttpEndpoint endpoint = registry.getEndpoint(request);
         HttpResponse response = endpoint.processRequest(request);
+        HttpResponse processedResponse = postProcessor.postProcess(request, response);
 
-        boolean isSent = httpResponseSender.sendHttpResponse(clientSocket, response);
+        boolean isSent = httpResponseSender.sendHttpResponse(clientSocket, processedResponse);
         if (isSent) {
-            System.out.printf("Response sent with status %s %n", response.responseStatus());
+            System.out.printf("Response sent with status %s %n", processedResponse.responseStatus());
         }
     } catch (IOException e) {
     }

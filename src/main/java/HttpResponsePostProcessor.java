@@ -1,29 +1,15 @@
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Map;
 import java.util.Set;
 import java.util.zip.GZIPOutputStream;
 
-public class EchoHttpEndpoint implements HttpEndpoint {
+public class HttpResponsePostProcessor {
     private static final Set<String> SUPPORTED_COMPRESSIONS = Set.of("gzip");
     private static final String COMPRESSION_HEADER = "Accept-Encoding";
 
-    private final HttpResponseBuilder responseBuilder;
-
-    @Override
-    public HttpResponse processRequest(HttpRequest request) {
-        String[] parts = request.url().split("/");
-        String echoPart = parts[2];
-
-        if (shouldCompress(request)) {
-            byte[] resp = compressToGzipBytes(echoPart);
-            return responseBuilder.build200(Arrays.toString(resp), Map.of("Content-Encoding", "gzip"));
-        }
-
-        return responseBuilder.build200(echoPart);
+    public HttpResponse postProcess(HttpRequest request, HttpResponse response) {
+        return response;
     }
 
     private boolean shouldCompress(HttpRequest request) {
@@ -31,20 +17,6 @@ public class EchoHttpEndpoint implements HttpEndpoint {
         boolean hasCompression = request.headers().containsKey(COMPRESSION_HEADER);
         boolean isValidCompression = SUPPORTED_COMPRESSIONS.stream().anyMatch(compressions::contains);
         return hasCompression && isValidCompression;
-    }
-
-    @Override
-    public String getUrl() {
-        return "/echo/**";
-    }
-
-    @Override
-    public boolean matches(HttpRequest request) {
-        return request.getBaseUrl().contains("echo");
-    }
-
-    public EchoHttpEndpoint(HttpResponseBuilder responseBuilder) {
-        this.responseBuilder = responseBuilder;
     }
 
     public static byte[] compressToGzipBytes(String str) {
