@@ -12,6 +12,10 @@ import java.util.Scanner;
 public class FilesHttpEndpoint implements HttpEndpoint {
     private final HttpResponseBuilder responseBuilder;
 
+    public FilesHttpEndpoint(HttpResponseBuilder responseBuilder) {
+        this.responseBuilder = responseBuilder;
+    }
+
     @Override
     public HttpResponse processRequest(HttpRequest request) {
         String[] parts = request.url().split("/");
@@ -69,16 +73,7 @@ public class FilesHttpEndpoint implements HttpEndpoint {
     }
 
     @Override
-    public String getUrl() {
-        return "/files/{filename}";
-    }
-
-    @Override
     public boolean matches(HttpRequest request) {
         return request.getBaseUrl().contains("files");
-    }
-
-    public FilesHttpEndpoint(HttpResponseBuilder responseBuilder) {
-        this.responseBuilder = responseBuilder;
     }
 }

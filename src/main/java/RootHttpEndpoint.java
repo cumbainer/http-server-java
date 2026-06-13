@@ -11,11 +11,6 @@ public class RootHttpEndpoint implements HttpEndpoint {
     }
 
     @Override
-    public String getUrl() {
-        return "/";
-    }
-
-    @Override
     public boolean matches(HttpRequest request) {
         return request.getBaseUrl().equals("/");
     }

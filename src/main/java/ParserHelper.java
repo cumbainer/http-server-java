@@ -7,10 +7,6 @@ import java.util.Arrays;
 
 public class ParserHelper {
 
-    public static String getUrlFromRequestPart(String part) {
-        return part.split("\r\n")[0].split(" ")[1].substring(1);
-    }
-
     public static byte[] trimTrailingZeroBytes(byte[] bytes) {
         if (bytes == null) {
             return null;
@@ -41,12 +37,10 @@ public class ParserHelper {
         }
     }
 
-
     public static boolean shouldClose(HttpRequest request) {
         return request.headers().entrySet().stream()
                 .anyMatch(entry -> entry.getKey().equals("Connection")
                         && entry.getValue().equals("close"));
     }
-
 
 }

@@ -12,11 +12,6 @@ public class UserAgentHttpEndpoint implements HttpEndpoint {
     }
 
     @Override
-    public String getUrl() {
-        return "/user-agent";
-    }
-
-    @Override
     public boolean matches(HttpRequest request) {
         return request.getBaseUrl().contains("user-agent");
     }
