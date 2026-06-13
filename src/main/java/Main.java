@@ -7,15 +7,12 @@ void main(String[] args) {
         serverSocket.setReuseAddress(true);
 
         while (true) {
+            Socket clientSocket = serverSocket.accept();
 
-                Thread thread = new Thread(() -> {
-                    try {
-                        handleHttpRequest(serverSocket);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
+            if (!clientSocket.isClosed()) {
+                Thread thread = new Thread(() -> handleHttpRequest(clientSocket));
                 thread.start();
+            }
         }
     } catch (IOException e) {
         throw new RuntimeException(e);
@@ -30,27 +27,26 @@ private String getFileDir(String[] args) {
     }
     return null;
 }
-private void handleHttpRequest(ServerSocket serverSocket) throws IOException {
-    Socket clientSocket = serverSocket.accept();
 
-    var registry = new EndpointRegistry();
-    var httpReqBuilder = new HttpRequestBuilder();
-    var httpResponseSender = new HttpResponseSender();
-    var postProcessor = new HttpResponsePostProcessor();
+private void handleHttpRequest(Socket clientSocket) {
+    while (!clientSocket.isClosed()) {
+        var registry = new EndpointRegistry();
+        var httpReqBuilder = new HttpRequestBuilder();
+        var httpResponseSender = new HttpResponseSender();
+        var postProcessor = new HttpResponsePostProcessor();
 
-    System.out.println("Accepted new connection from " + clientSocket.getInetAddress().getHostName());
+        System.out.println("Accepted new connection from " + clientSocket.getInetAddress().getHostName());
 
-    String requestStr = ParserHelper.parseReqToString(clientSocket);
-    HttpRequest request = httpReqBuilder.build(requestStr);
+        String requestStr = ParserHelper.parseReqToString(clientSocket);
+        HttpRequest request = httpReqBuilder.build(requestStr);
 
-    HttpEndpoint endpoint = registry.getEndpoint(request);
-    HttpResponse response = endpoint.processRequest(request);
-    HttpResponse processedResponse = postProcessor.postProcess(request, response);
+        HttpEndpoint endpoint = registry.getEndpoint(request);
+        HttpResponse response = endpoint.processRequest(request);
+        HttpResponse processedResponse = postProcessor.postProcess(request, response);
 
-    boolean isSent = httpResponseSender.sendHttpResponse(clientSocket, processedResponse);
-    if (isSent) {
-        System.out.printf("Response sent with status %s %n", processedResponse.responseStatus());
+        boolean isSent = httpResponseSender.sendHttpResponse(clientSocket, processedResponse);
+        if (isSent) {
+            System.out.printf("Response sent with status %s %n", processedResponse.responseStatus());
+        }
     }
-
 }
-
