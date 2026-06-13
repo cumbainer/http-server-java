@@ -18,7 +18,7 @@ public class HttpResponseBuilder {
             return Collections.emptyList();
         }
         String contentLengthH = "Content-Length: " + responseBody.length();
-        String contentTypeH = "Content-Type: text/plain";
+        String contentTypeH = "Content-Type: application/octet-stream";
         return List.of(contentLengthH, contentTypeH);
     }
 
