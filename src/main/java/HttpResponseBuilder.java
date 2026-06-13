@@ -12,9 +12,9 @@ public class HttpResponseBuilder {
         Map<String, String> headers = new LinkedHashMap<>();
 
         if (responseBody != null && !responseBody.isBlank()) {
-            headers.put("Content-Length", String.valueOf(responseBody.length()));
             headers.put("Content-Type", "text/plain");
         }
+        headers.put("Content-Length", responseBody == null ? "0" : String.valueOf(responseBody.length()));
 
         headers.putAll(overrideHeaders);
 

@@ -35,7 +35,6 @@ public class HttpResponseSender {
 
             outputStream.write(rawResponse.toString().getBytes(StandardCharsets.UTF_8));
             outputStream.write(bodyBytes);
-            outputStream.write("\r\n".getBytes());
             outputStream.flush();
 
             return true;
