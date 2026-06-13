@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -18,7 +19,11 @@ public class HttpResponseSender {
                     ? ""
                     : response.responseBody();
 
-            byte[] bodyBytes = body.getBytes(StandardCharsets.UTF_8);
+            Charset bodyCharset = isGzipResponse(response)
+                    ? StandardCharsets.ISO_8859_1
+                    : StandardCharsets.UTF_8;
+
+            byte[] bodyBytes = body.getBytes(bodyCharset);
 
             StringBuilder rawResponse = new StringBuilder();
 
@@ -59,5 +64,15 @@ public class HttpResponseSender {
             e.printStackTrace();
             return false;
         }
+    }
+
+    private boolean isGzipResponse(HttpResponse response) {
+        if (response.responseHeaders() == null) {
+            return false;
+        }
+
+        return response.responseHeaders()
+                .stream()
+                .anyMatch(header -> header.equalsIgnoreCase("Content-Encoding: gzip"));
     }
 }

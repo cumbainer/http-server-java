@@ -19,8 +19,13 @@ public class EchoHttpEndpoint implements HttpEndpoint {
         String echoPart = parts[2];
 
         if (shouldCompress(request)) {
-            byte[] resp = compressToGzipBytes(echoPart);
-            return responseBuilder.build200(Arrays.toString(resp), Map.of("Content-Encoding", "gzip"));
+            byte[] gzipBytes = compressToGzipBytes(echoPart);
+            String gzipBody = new String(gzipBytes, StandardCharsets.ISO_8859_1);
+
+            return responseBuilder.build200(
+                    gzipBody,
+                    Map.of("Content-Encoding", "gzip")
+            );
         }
 
         return responseBuilder.build200(echoPart);
