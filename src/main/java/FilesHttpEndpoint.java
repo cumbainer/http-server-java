@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Map;
 import java.util.Scanner;
 
 public class FilesHttpEndpoint implements HttpEndpoint {
@@ -10,7 +11,7 @@ public class FilesHttpEndpoint implements HttpEndpoint {
         String[] parts = request.url().split("/");
         String filename;
         if (parts.length > 2) {
-            filename = parts[3];
+            filename = parts[2];
         } else {
             return responseBuilder.build404();
         }
@@ -20,7 +21,7 @@ public class FilesHttpEndpoint implements HttpEndpoint {
             while (scanner.hasNext()) {
                 fileContent.append(scanner.nextLine());
             }
-            return responseBuilder.build200(fileContent.toString());
+            return responseBuilder.build200(fileContent.toString(), Map.of("Content-Type", "application/octet-stream"));
         } catch (FileNotFoundException ex) {
             return responseBuilder.build404();
         }
