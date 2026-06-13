@@ -48,5 +48,14 @@ private void handleHttpRequest(Socket clientSocket) {
         if (isSent) {
             System.out.printf("Response sent with status %s %n", processedResponse.responseStatus());
         }
+
+        if (ParserHelper.shouldClose(request)) {
+            try {
+                clientSocket.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }
+

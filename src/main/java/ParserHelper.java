@@ -42,4 +42,11 @@ public class ParserHelper {
     }
 
 
+    public static boolean shouldClose(HttpRequest request) {
+        return request.headers().entrySet().stream()
+                .anyMatch(entry -> entry.getKey().equals("Connection")
+                        && entry.getValue().equals("close"));
+    }
+
+
 }

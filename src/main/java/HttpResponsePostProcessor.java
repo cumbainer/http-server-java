@@ -9,6 +9,9 @@ public class HttpResponsePostProcessor {
     private static final String COMPRESSION_HEADER = "Accept-Encoding";
 
     public HttpResponse postProcess(HttpRequest request, HttpResponse response) {
+        if (ParserHelper.shouldClose(request)) {
+            response.responseHeaders().add("Connection: close");
+        }
         return response;
     }
 
