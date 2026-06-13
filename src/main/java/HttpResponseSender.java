@@ -16,6 +16,7 @@ public class HttpResponseSender {
             String body = response.responseBody() == null
                     ? ""
                     : response.responseBody();
+            body += "\r\n   ";
 
             byte[] bodyBytes = body.getBytes(StandardCharsets.UTF_8);
 
@@ -32,6 +33,7 @@ public class HttpResponseSender {
             }
 
             rawResponse.append("\r\n");
+
 
             outputStream.write(rawResponse.toString().getBytes(StandardCharsets.UTF_8));
             outputStream.write(bodyBytes);
