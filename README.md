@@ -33,5 +33,5 @@ Note: This section is for stages 2 and beyond.
 1. Ensure you have `mvn` installed locally
 1. Run `./your_program.sh` to run your program, which is implemented in
    `src/main/java/Main.java`.
-1. Run `codecrafters submit` to submit your solution to CodeCrafters. Test
+1. Run `codecrafters submit` to submit your solution to CodeCrafters. HttpEndpoint
    output will be streamed to your terminal.

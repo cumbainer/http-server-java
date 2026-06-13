@@ -1,8 +1,4 @@
 import java.util.List;
 
-public class HttpResponse {
-    private List<String> headers;
-    private String responseBody;
-
-
+public record HttpResponse(List<String> responseHeaders, String responseBody, HttpStatus responseStatus) {
 }

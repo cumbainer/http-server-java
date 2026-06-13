@@ -1,17 +1,6 @@
-public class HttpEndpoint {
-    private HttpMethod method;
-    private String url;
+public interface HttpEndpoint {
+    HttpResponse processRequest(HttpRequest request);
 
-    public HttpEndpoint(HttpMethod method, String url) {
-        this.method = method;
-        this.url = url;
-    }
+    String getUrl();
 
-    public HttpMethod getMethod() {
-        return method;
-    }
-
-    public String getUrl() {
-        return url;
-    }
 }
